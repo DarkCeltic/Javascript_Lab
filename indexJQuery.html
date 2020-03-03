@@ -142,7 +142,7 @@
       // Find the checked option in the 'hobbies' select element.
       // Print the value and the contents.
 
-      $('select[name$="hobbies"]').change(function () {
+      $('select[name$="hobbies"]').change(function getHobbies() {
         let value = $(this).children("option:selected").val();
         let contents = $(this).children("option:selected").text();
         console.log("Value: " + value);
@@ -154,14 +154,11 @@
       // Find all elements with "data-customAttr" attribute
       // Print the value of the attribute.
       // Print the element that has the attribute.
-      function getCustomAttribute() {
-        let allElements = document.querySelectorAll("[data-customAttr]");
-        for (let index = 0; index < allElements.length; index++) {
-          console.log("Value: " + allElements[index].innerHTML + " Element: " + allElements[index].localName);
 
-        }
-      }
-      // getCustomAttribute();
+      $("[data-customAttr]").each(function getCustomAttribute() {
+        console.log($(this).attr("data-customAttr"));
+        console.log($(this));
+      })
 
       // 6. Sum Event
       // NOTE: Write unobtrusive Javascript
@@ -174,36 +171,43 @@
       // Add <input> element values.
       // Put the sum in the <span> element.
       // If values cannot be added, put "Cannot add" in the <span> element
-      let num1 = document.getElementById("num1");
-      let num2 = document.getElementById("num2");
-      num1.addEventListener("change", addinputs);
-      num2.addEventListener("change", addinputs);
-
-      function addinputs() {
-        let sum = 0;
-        sum = parseInt(num1.value, 10) + parseInt(num2.value, 10);
+      let sum = 0;
+      let num1 = 0;
+      let num2 = 0;
+      $("input #num1").change(function () {
+        num1 = $("#num1").val();
+        // console.log();
+        num2 = $("#num2").val();
+        sum = parseInt(num1) + parseInt(num2);
         if (sum) {
-          document.getElementById("sum").innerHTML = sum;
+          $("#sum").val(sum);
         } else {
-          document.getElementById("sum").innerHTML = "Cannot add";
+          $("#sum").text("Cannot Add");
         }
-      }
-      // ******************************************************************************************************
+      })
+
+      $("#num2").change(function () {
+        num1 = $("#num1").val();
+        num2 = $("#num2").val();
+        sum = parseInt(num1) + parseInt(num2);
+        if (sum) {
+          $("#sum").text(sum);
+        } else {
+          $("#sum").text("Cannot Add");
+        }
+      })
+
       // 7. Skills Event
       // NOTE: Write unobtrusive Javascript
       // When user selects a skill, create an alert with a message similar to:
       // 	"Are you sure CSS is one of your skills?"
       // NOTE: no alert should appear when user deselects a skill.
 
-      let skills = document.getElementsByName("skills")[0];
-      skills.addEventListener("change", newSkill);
+      $('select[name$="skills"]').change(function () {
+        let contents = $(this).children("option:selected").text();
+        alert("Are you sure " + contents + " is one of your skills?");
+      })
 
-      function newSkill() {
-        let newSkill = skills.options[skills.selectedIndex].text;
-        alert("Are you sure " + newSkill + " is one of your skills?");
-      }
-
-      // *********************************************This is not actually changing the background color*********************************************************
       // 8. Favorite Color Event
       // NOTE: Write unobtrusive Javascript
       // NOTE: This is regarding the favoriteColor radio buttons.
@@ -211,23 +215,17 @@
       // 	"So you like green more than blue now?"
       // In this example, green is the new value and blue is the old value.
       // Make the background color (of all favoriteColor radio buttons) the newly selected favoriteColor
-      let color = document.getElementById("firstForm");
-      color.addEventListener("click", favColor);
-      let previousColor = null;
-      function favColor(e) {
-        if (e.toElement.name === "favoriteColor") {
-          let currentColor = e.toElement.value;
-          if (currentColor !== previousColor) {
-            // e.toElement.style.backgroundColor = currentColor;
-            let x = document.getElementsByName("favoriteColor");
-            for (let index = 0; index < x.length; index++) {
-              x[index].style.backgroundColor = currentColor;
-            }
-            alert("So you like " + currentColor + " more than " + previousColor + " now?");
-            previousColor = e.toElement.value;
-          }
-        }
-      }
+
+      let previousColor = "white";
+      $('input[name$="favoriteColor"]').click(function (params) {
+        let currentColor = $('input[name$="favoriteColor"]:checked').val();
+        // $(this).wrap("<div style='display:inline-block; background-color:'" + currentColor + "></div>");
+        alert("So you like " + currentColor + " more than " + previousColor + " now?");
+        $('input[name$="favoriteColor"]').each(function (params) {
+          $(this).css("backgroundColor", currentColor);
+        })
+        previousColor = currentColor;
+      })
 
       // 9. Show/Hide Event
       // NOTE: Write unobtrusive Javascript
@@ -235,36 +233,29 @@
       // 	Hide the name if shown.
       // 	Show the name if hidden.
 
-      let name = document.querySelector("table");
-      name.addEventListener("mouseover", hideEmployee);
-
-      function hideEmployee(e) {
-        if (e.toElement.className === "empName") {
-          if (e.toElement.style.color === "white") {
-            e.toElement.style.color = "black";
+      $("td").mouseover(function (params) {
+        if ($(this).hasClass("empName")) {
+          // alert($(this).css("color"))
+          if ($(this).css("color") === "rgb(0, 0, 0)") {
+            $(this).css("color", "white");
           } else {
-            e.toElement.style.color = "white";
+            $(this).css("color", "black");
           }
         }
-      }
+      });
 
       // 10. Current Time
       // Regarding this element:
       // 	<h5 id="currentTime"></h5>
       // Show the current time in this element in this format: 9:05:23 AM
       // The time should be accurate to the second without having to reload the page.
-      window.addEventListener("load", printTime);
-      timerId = null;
-      function printTime() {
-        let pageTime = document.getElementById("currentTime");
+      setInterval(function () {
         let time = new Date();
         let hour = time.getHours();
         let mins = time.getMinutes();
         let sec = time.getSeconds();
         let amPm = "AM";
-        // if () {
 
-        // }
         if (hour > 12) {
           amPm = "PM";
           hour -= 12;
@@ -278,52 +269,52 @@
         if (sec < 10) {
           sec = "0" + sec;
         }
-
-        pageTime.innerHTML = hour + ":" + mins + ":" + sec + " " + amPm;
-        timerID = setTimeout("printTime()", 1000);
-      }
+        $("#currentTime").text(hour + ":" + mins + ":" + sec + " " + amPm);
+      }, 1000);
 
       // 11. Delay
       // Regarding this element:
       // 	<p id="helloWorld">Hello, World!</p>
       // Three seconds after a user clicks on this element, change the text to a random color.
-      let changeColor = document.getElementById("helloWorld");
-      changeColor.addEventListener("click", delay);
-
-      function delay() {
-        setTimeout("randomColor()", 2500);
-      }
-
-      function randomColor() {
+      // setInterval(function (params) {
+      $("#helloWorld").click(function () {
         let random = Math.floor(Math.random() * 16777215).toString(16);
-        changeColor.style.color = "#" + random;
-      }
+        let randColor = "#" + random;
+        setTimeout(function () {
+          $("#helloWorld").css("color", randColor)
+        }, 3000);
+
+        $("#mydiv").css("color", "green")
+      });
+
+      // **************************************This left to do****************************************************************
       // 12. Walk the DOM
       // Define function walkTheDOM(node, func)
       // This function should traverse every node in the DOM. Use recursion.
       // On each node, call func(node).
 
-      // function walkTheDom(node, func) {
-      //   func(node);
-      // }
-      // function diveTheDom(node) {
-      //   if (node.tagName !== undefined) {
-      //     if (node.text === undefined) {
-      //       console.log("The nodes tag is: " + node.tagName + "\n\tThe nodes name is: " + node.name);
-      //     } else {
-      //       console.log("The nodes tag is: " + node.tagName + " \n\tThe nodes value is: " + node.text);
-      //     }
-      //   }
-      //   if (node.hasChildNodes) {
-      //     let nodeList = node.childNodes;
-      //     for (let i = 0; i < nodeList.length; i++) {
-      //       diveTheDom(nodeList[i]);
-      //     }
-      //   }
-      // }
+      function walkTheDom(node, func) {
+        func(node);
+      }
+      function diveTheDom(node) {
+        if (node.tagName !== undefined) {
+          if (node.text === undefined) {
+            console.log("The nodes tag is: " + node.tagName + "\n\tThe nodes name is: " + node.name);
+          } else {
+            console.log("The nodes tag is: " + node.tagName + " \n\tThe nodes value is: " + node.text);
+          }
+        }
+        if (node.hasChildNodes) {
+          let nodeList = node.childNodes;
+          for (let i = 0; i < nodeList.length; i++) {
+            diveTheDom(nodeList[i]);
+          }
+        }
+      }
 
-      // walkTheDom(document.body, diveTheDom)
+      walkTheDom(document.body, diveTheDom)
     });
+
 
   </script>
 
